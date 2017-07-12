@@ -41,7 +41,7 @@ Note that we are using an older version of TensorBox which crashes once training
  
 
 ### IPython Notebook
-The [ipython notebook](https://bbgithub.dev.bloomberg.com/DSG/Scatteract/blob/master/Scatteract_notebook.ipynb) can be used after the object detection models are trained.  It allows you to interact with the building blocks of Scatteract and visualize their outputs.  
+The [ipython notebook](https://github.com/bloomberg/scatteract/Scatteract_notebook.ipynb) can be used after the object detection models are trained.  It allows you to interact with the building blocks of Scatteract and visualize their outputs.  
 
 ### Test object detection models
 
