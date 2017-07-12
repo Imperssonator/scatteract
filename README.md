@@ -7,7 +7,7 @@ This repository is meant to support <a href="https://arxiv.org/abs/1704.06687" t
 
 <sup>1</sup><b>Disclaimer</b>: We vendored the TensorBox dependency into the `tensorbox` folder since there is no way to pull it in from pypi. We have made no change to this code.
 
-###Requirements:
+### Requirements:
 tensorflow==0.10.0rc0 <br />
 scipy (tested on 0.17.1) <br />
 scikit-learn (tested on 0.17.1) <br />
