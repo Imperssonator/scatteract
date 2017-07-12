@@ -2,7 +2,7 @@
 
 ![Scatteract](/scatteract_image.png)
 
-Scatteract is a framework to automatically extract data from the image of scatter plots.  We use <a href="https://github.com/TensorBox/TensorBox" target="_blank">TensorBox</a><sup>1</sup> to detect the relevants objects (points, tick marks and tick values), <a href="https://github.com/tesseract-ocr/tesseract" target="_blank">Tesseract</a> for the OCR, and several heuristics to extract the points in chart coordinates.   See <a href="https://arxiv.org/abs/1704.06687" target="_blank">the paper</a> for details.
+Scatteract is a framework to automatically extract data from the image of scatter plots.  We use <a href="https://github.com/TensorBox/TensorBox" target="_blank">TensorBox</a><sup>1</sup> to detect the relevant objects (points, tick marks and tick values), <a href="https://github.com/tesseract-ocr/tesseract" target="_blank">Tesseract</a> for the OCR, and several heuristics to extract the points in chart coordinates.   See <a href="https://arxiv.org/abs/1704.06687" target="_blank">the paper</a> for details.
 This repository is meant to support <a href="https://arxiv.org/abs/1704.06687" target="_blank">the paper</a> and is not an attempt at creating an actual open source project.
 
 <sup>1</sup><b>Disclaimer</b>: We vendored the TensorBox dependency into the `tensorbox` folder since there is no way to pull it in from pypi. We have made no change to this code.
