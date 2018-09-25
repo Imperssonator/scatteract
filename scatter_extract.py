@@ -17,7 +17,7 @@
 import tensorflow as tf
 import json
 from scipy.misc import imresize, imsave
-from tensorbox.train_obj_model import build_forward
+from tensorbox.model import build_forward
 from tensorbox.utils import googlenet_load
 from tensorbox.utils.annolist import AnnotationLib as al
 from tensorbox.utils.train_utils import add_rectangles, rescale_boxes

@@ -2,5 +2,9 @@
 .py[co]
 __pycache__/
 
+# Models
+**/*.tar.gz
+**/*.ckpt
+
 # Scatteract logs
 scatteract.log

@@ -16,6 +16,7 @@
 import matplotlib
 matplotlib.use('Agg') #To make sure plots are not being displayed during the generation.
 import numpy as np
+from numpy.random import rand as randu
 np.random.seed(0) #For consistent data generation.
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
@@ -127,54 +128,54 @@ def get_random_plot(name, direc):
     distribution = random.choice(point_dist)
 
     # RESOLUTION AND TICK SIZE
-    dpi = int(dpi_min + np.random.rand(1)[0]*(dpi_max-dpi_min))
-    figsize = (figsize_min+np.random.rand(2)*(figsize_max-figsize_min)).astype(int)
-    tick_size = [(tick_size_width_min+np.random.rand(1)[0]*(tick_size_width_max-tick_size_width_min)),
-                 (tick_size_length_min+np.random.rand(1)[0]*(tick_size_length_max-tick_size_length_min))]
+    dpi = int(dpi_min + randu(1)[0]*(dpi_max-dpi_min))
+    figsize = (figsize_min+randu(2)*(figsize_max-figsize_min)).astype(int)
+    tick_size = [(tick_size_width_min+randu(1)[0]*(tick_size_width_max-tick_size_width_min)),
+                 (tick_size_length_min+randu(1)[0]*(tick_size_length_max-tick_size_length_min))]
     tick_size.sort()
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
 
     # ACTUAL POINTS
-    points_nb = int(points_nb_min + (np.random.rand(1)[0]**1.5)*(points_nb_max-points_nb_min))
-    x_scale =  int(x_min_top+np.random.rand(1)[0]*(x_max_top - x_min_top))
-    y_scale =  int(y_min_top+np.random.rand(1)[0]*(y_max_top - y_min_top))
-    x_scale_range = x_scale + int(np.random.rand(1)[0]*x_scale_range_max)
-    y_scale_range = y_scale + int(np.random.rand(1)[0]*y_scale_range_max)
-    x_min = (-np.random.rand(1)[0]+np.random.rand(1)[0])*10**(x_scale)
-    x_max = (-np.random.rand(1)[0]+np.random.rand(1)[0])*10**(x_scale_range)
+    points_nb = int(points_nb_min + (randu(1)[0]**1.5)*(points_nb_max-points_nb_min))
+    x_scale =  int(x_min_top+randu(1)[0]*(x_max_top - x_min_top))
+    y_scale =  int(y_min_top+randu(1)[0]*(y_max_top - y_min_top))
+    x_scale_range = x_scale + int(randu(1)[0]*x_scale_range_max)
+    y_scale_range = y_scale + int(randu(1)[0]*y_scale_range_max)
+    x_min = (-randu(1)[0]+randu(1)[0])*10**(x_scale)
+    x_max = (-randu(1)[0]+randu(1)[0])*10**(x_scale_range)
     x_min, x_max = min(x_min,x_max), max(x_min,x_max)
-    y_min = (-np.random.rand(1)[0]+np.random.rand(1)[0])*10**(y_scale)
-    y_max = (-np.random.rand(1)[0]+np.random.rand(1)[0])*10**(y_scale_range)
+    y_min = (-randu(1)[0]+randu(1)[0])*10**(y_scale)
+    y_max = (-randu(1)[0]+randu(1)[0])*10**(y_scale_range)
     y_min, y_max = min(y_min,y_max), max(y_min,y_max)
 
     if distribution=='uniform':
-        x = x_min+np.random.rand(points_nb)*(x_max-x_min)
-        y = y_min+np.random.rand(points_nb)*(y_max-y_min)
+        x = x_min+randu(points_nb)*(x_max-x_min)
+        y = y_min+randu(points_nb)*(y_max-y_min)
     elif distribution=='linear':
-        x = x_min+np.random.rand(points_nb)*(x_max-x_min)
-        y = x*(max(y_max,-y_min)/(max(x_max,-x_min)))*random.choice([-1.0,1.0]) + (y_min+np.random.rand(points_nb)*(y_max-y_min))*np.random.rand(1)[0]/2.0
+        x = x_min+randu(points_nb)*(x_max-x_min)
+        y = x*(max(y_max,-y_min)/(max(x_max,-x_min)))*random.choice([-1.0,1.0]) + (y_min+randu(points_nb)*(y_max-y_min))*randu(1)[0]/2.0
     elif distribution=='quadratic':
-        x = x_min+np.random.rand(points_nb)*(x_max-x_min)
-        y = x**2*(1.0/(max(x_max,-x_min)))**2*max(y_max,-y_min)*random.choice([-1.0,1.0]) + (y_min+np.random.rand(points_nb)*(y_max-y_min))*np.random.rand(1)[0]/2.0
+        x = x_min+randu(points_nb)*(x_max-x_min)
+        y = x**2*(1.0/(max(x_max,-x_min)))**2*max(y_max,-y_min)*random.choice([-1.0,1.0]) + (y_min+randu(points_nb)*(y_max-y_min))*randu(1)[0]/2.0
 
     # POINTS VARIATION
-    nb_points_var = 1+int(np.random.rand(1)[0]*max_points_variations)
-    nb_points_var_colors =  1+int(np.random.rand(1)[0]*nb_points_var)
-    nb_points_var_markers =  1+int(np.random.rand(1)[0]*(nb_points_var-nb_points_var_colors))
+    nb_points_var = 1+int(randu(1)[0]*max_points_variations)
+    nb_points_var_colors =  1+int(randu(1)[0]*nb_points_var)
+    nb_points_var_markers =  1+int(randu(1)[0]*(nb_points_var-nb_points_var_colors))
     nb_points_var_size =  max(1,1+nb_points_var-nb_points_var_colors-nb_points_var_markers)
 
-    rand_color_number = np.random.rand(1)[0]
+    rand_color_number = randu(1)[0]
     if rand_color_number<=0.5:
-        colors = cm.rainbow(np.random.rand(nb_points_var_colors))
+        colors = cm.rainbow(randu(nb_points_var_colors))
     elif rand_color_number>0.5 and rand_color_number<=0.7:
-        colors = cm.gnuplot(np.random.rand(nb_points_var_colors))
+        colors = cm.gnuplot(randu(nb_points_var_colors))
     elif rand_color_number>0.7 and rand_color_number<=0.8:
-        colors = cm.copper(np.random.rand(nb_points_var_colors))
+        colors = cm.copper(randu(nb_points_var_colors))
     else:
         colors = cm.gray(np.linspace(0,0.6,nb_points_var_colors))
-    s_set = (size_points_min+np.random.rand(nb_points_var_size)*(size_points_max-size_points_min))**2
+    s_set = (size_points_min+randu(nb_points_var_size)*(size_points_max-size_points_min))**2
     markers_subset = list(np.random.choice(markers,size=nb_points_var_markers))
-    markers_empty = np.random.rand(1)[0]>0.75
+    markers_empty = randu(1)[0]>0.75
     markers_empty_ratio = random.choice([0.0,0.5,0.7])
 
     # BUILDING THE PLOT
@@ -188,7 +189,7 @@ def get_random_plot(name, direc):
         c_ = random.choice(colors)
         m_ = random.choice(markers_subset)
         if m_ in markers_with_full and markers_empty:
-            e_ = np.random.rand(1)[0]> markers_empty_ratio
+            e_ = randu(1)[0]> markers_empty_ratio
         else:
             e_ = False
         cat = [s_,c_,m_, e_]
@@ -204,90 +205,90 @@ def get_random_plot(name, direc):
             plt.scatter(_x, _y, s=s_, color = c_, marker=m_)
 
     # PAD BETWEEN TICKS AND LABELS
-    pad_x = max(tick_size[1]+0.5,int(pad_min + np.random.rand(1)[0]*(pad_max-pad_min)))
-    pad_y = max(tick_size[1]+0.5,int(pad_min + np.random.rand(1)[0]*(pad_max-pad_min)))
+    pad_x = max(tick_size[1]+0.5,int(pad_min + randu(1)[0]*(pad_max-pad_min)))
+    pad_y = max(tick_size[1]+0.5,int(pad_min + randu(1)[0]*(pad_max-pad_min)))
     direction_ticks_x = random.choice(direction_ticks)
     direction_ticks_y = random.choice(direction_ticks)
 
     # NON-DEFAULT TICKS PROB, WITH THRESHOLD OF 0.6
-    weid_ticks_prob = np.random.rand(1)[0]
+    weid_ticks_prob = randu(1)[0]
 
     # TICKS STYLE AND LOCATION (X AXIS)
-    if np.random.rand(1)[0]>0.5:
+    if randu(1)[0]>0.5:
         axes_x_pos = 1
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position("top")
         if weid_ticks_prob >0.6:
             ax.xaxis.set_tick_params(width=tick_size[0], length=tick_size[1], color='black', pad=pad_x,
-                                 direction= direction_ticks_x, bottom=np.random.rand(1)[0]>0.5, top=True)
+                                 direction= direction_ticks_x, bottom=randu(1)[0]>0.5, top=True)
         else:
-            ax.xaxis.set_tick_params(bottom=np.random.rand(1)[0]>0.5, top=True)
-        if np.random.rand(1)[0]>0.5:
+            ax.xaxis.set_tick_params(bottom=randu(1)[0]>0.5, top=True)
+        if randu(1)[0]>0.5:
             ax.spines['bottom'].set_visible(False)
             ax.xaxis.set_tick_params(bottom=False)
-            if np.random.rand(1)[0]>0.5:
-                axes_x_pos = np.random.rand(1)[0]
+            if randu(1)[0]>0.5:
+                axes_x_pos = randu(1)[0]
                 ax.spines['top'].set_position(('axes',axes_x_pos ))
     else:
         axes_x_pos = 0
         if weid_ticks_prob >0.6:
             ax.xaxis.set_tick_params(width=tick_size[0], length=tick_size[1], color='black', pad=pad_x,
-                                 direction= direction_ticks_x, bottom=True, top=np.random.rand(1)[0]>0.5)
+                                 direction= direction_ticks_x, bottom=True, top=randu(1)[0]>0.5)
         else:
-            ax.xaxis.set_tick_params(bottom=True, top=np.random.rand(1)[0]>0.5)
-        if np.random.rand(1)[0]>0.5:
+            ax.xaxis.set_tick_params(bottom=True, top=randu(1)[0]>0.5)
+        if randu(1)[0]>0.5:
             ax.spines['top'].set_visible(False)
             ax.xaxis.set_tick_params(top=False)
-            if np.random.rand(1)[0]>0.5:
-                axes_x_pos = np.random.rand(1)[0]
+            if randu(1)[0]>0.5:
+                axes_x_pos = randu(1)[0]
                 ax.spines['bottom'].set_position(('axes',axes_x_pos))
 
     # TICKS STYLE AND LOCATION (Y AXIS)
-    if np.random.rand(1)[0]>0.5:
+    if randu(1)[0]>0.5:
         axes_y_pos = 1
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         if weid_ticks_prob > 0.6:
             ax.yaxis.set_tick_params(width=tick_size[0], length=tick_size[1], color='black', pad=pad_y,
-                                 direction= direction_ticks_y, left=np.random.rand(1)[0]>0.5, right=True)
+                                 direction= direction_ticks_y, left=randu(1)[0]>0.5, right=True)
         else:
-            ax.yaxis.set_tick_params(left=np.random.rand(1)[0]>0.5, right=True)
-        if np.random.rand(1)[0]>0.5:
+            ax.yaxis.set_tick_params(left=randu(1)[0]>0.5, right=True)
+        if randu(1)[0]>0.5:
             ax.spines['left'].set_visible(False)
             ax.yaxis.set_tick_params(left=False)
-            if np.random.rand(1)[0]>0.5:
-                axes_y_pos = np.random.rand(1)[0]
+            if randu(1)[0]>0.5:
+                axes_y_pos = randu(1)[0]
                 ax.spines['right'].set_position(('axes',axes_y_pos))
     else:
         axes_y_pos = 0
         if weid_ticks_prob >0.6:
             ax.yaxis.set_tick_params(width=tick_size[0], length=tick_size[1], color='black', pad=pad_y,
-                                 direction= direction_ticks_y, left=True, right=np.random.rand(1)[0]>0.5)
+                                 direction= direction_ticks_y, left=True, right=randu(1)[0]>0.5)
         else:
-            ax.yaxis.set_tick_params(left=True, right=np.random.rand(1)[0]>0.5)
-        if np.random.rand(1)[0]>0.5:
+            ax.yaxis.set_tick_params(left=True, right=randu(1)[0]>0.5)
+        if randu(1)[0]>0.5:
             ax.spines['right'].set_visible(False)
             ax.yaxis.set_tick_params(right=False)
-            if np.random.rand(1)[0]>0.5:
-                axes_y_pos = np.random.rand(1)[0]
+            if randu(1)[0]>0.5:
+                axes_y_pos = randu(1)[0]
                 ax.spines['left'].set_position(('axes',axes_y_pos))
 
     # LABEL ROTATION
-    if np.random.rand(1)[0]>0.77:
-        plt.xticks(rotation=int(np.random.rand(1)[0]*90))
-    if np.random.rand(1)[0]>0.77:
-        plt.yticks(rotation=int(np.random.rand(1)[0]*90))
+    if randu(1)[0]>0.77:
+        plt.xticks(rotation=int(randu(1)[0]*90))
+    if randu(1)[0]>0.77:
+        plt.yticks(rotation=int(randu(1)[0]*90))
 
     # SUB-TICKs
     if weid_ticks_prob > 0.6:
         color_subtick = random.choice(color_subtick_list)
-        length_subtick = 0.75*np.random.rand(1)[0]*tick_size[1]
-        if np.random.rand(1)[0]>0.7:
+        length_subtick = 0.75*randu(1)[0]*tick_size[1]
+        if randu(1)[0]>0.7:
             minorLocator = AutoMinorLocator()
             ax.xaxis.set_minor_locator(minorLocator)
             ax.xaxis.set_tick_params(which='minor', length=length_subtick, direction= direction_ticks_x, color=color_subtick,
                                      bottom= ax.spines['bottom'].get_visible(), top=ax.spines['top'].get_visible())
-        if np.random.rand(1)[0]>0.7:
+        if randu(1)[0]>0.7:
             minorLocator = AutoMinorLocator()
             ax.yaxis.set_minor_locator(minorLocator)
             ax.yaxis.set_tick_params(which='minor', length=length_subtick, direction= direction_ticks_y, color=color_subtick,
@@ -296,17 +297,17 @@ def get_random_plot(name, direc):
 
     # FONT AND SIZE FOR LABELS (tick labels, axes labels and title)
     font = random.choice(font_list)
-    size_ticks = int(tick_label_size_min + np.random.rand(1)[0]*(tick_label_size_max-tick_label_size_min))
-    size_axes = int(axes_label_size_min + np.random.rand(1)[0]*(axes_label_size_max-axes_label_size_min))
-    size_title = int(title_size_min + np.random.rand(1)[0]*(title_size_max-title_size_min))
+    size_ticks = int(tick_label_size_min + randu(1)[0]*(tick_label_size_max-tick_label_size_min))
+    size_axes = int(axes_label_size_min + randu(1)[0]*(axes_label_size_max-axes_label_size_min))
+    size_title = int(title_size_min + randu(1)[0]*(title_size_max-title_size_min))
     ticks_font = font_manager.FontProperties(fname = font, style='normal', size=size_ticks, weight='normal', stretch='normal')
     axes_font = font_manager.FontProperties(fname = font, style='normal', size=size_axes, weight='normal', stretch='normal')
     title_font = font_manager.FontProperties(fname = font, style='normal', size=size_title, weight='normal', stretch='normal')
 
     # TEXTS FOR AXIS LABELS AND TITLE
-    label_x_length = int(axes_label_length_min + np.random.rand(1)[0]*(axes_label_length_max-axes_label_length_min))
-    label_y_length = int(axes_label_length_min + np.random.rand(1)[0]*(axes_label_length_max-axes_label_length_min))
-    title_length = int(title_length_min + np.random.rand(1)[0]*(title_length_max-title_length_min))
+    label_x_length = int(axes_label_length_min + randu(1)[0]*(axes_label_length_max-axes_label_length_min))
+    label_y_length = int(axes_label_length_min + randu(1)[0]*(axes_label_length_max-axes_label_length_min))
+    title_length = int(title_length_min + randu(1)[0]*(title_length_max-title_length_min))
     x_label = ("".join( [random.choice(string.ascii_letters+'       ') for i in range(label_x_length)] )).strip()
     y_label = ("".join( [random.choice(string.ascii_letters+'       ') for i in range(label_y_length)] )).strip()
     title = ("".join( [random.choice(string.ascii_letters+'       ') for i in range(title_length)] )).strip()
@@ -324,7 +325,7 @@ def get_random_plot(name, direc):
         label.set_fontproperties(ticks_font)
 
     # GRID
-    if np.random.rand(1)[0]>0.7:
+    if randu(1)[0]>0.7:
         plt.grid(b=True, which='major', color=random.choice(color_grid), linestyle=random.choice(linestyles))
 
     # AXIS LIMITS
@@ -339,11 +340,11 @@ def get_random_plot(name, direc):
 
 
     # BACKGROUND AND PATCH COLORS
-    if np.random.rand(1)[0]>0.75:
-        color_bg = (1-colorbg_transparant_max)+colorbg_transparant_max*np.random.rand(3)
-        ax.set_axis_bgcolor(color_bg)
-    if np.random.rand(1)[0]>0.75:
-        color_bg = (1-colorbg_transparant_max)+colorbg_transparant_max*np.random.rand(3)
+    if randu(1)[0]>0.75:
+        color_bg = (1-colorbg_transparant_max)+colorbg_transparant_max*randu(3)
+        ax.set_facecolor(color_bg)
+    if randu(1)[0]>0.75:
+        color_bg = (1-colorbg_transparant_max)+colorbg_transparant_max*randu(3)
         fig.patch.set_facecolor(color_bg)
 
     # MAKE SURE THE PLOT FITS INSIDE THE FIGURES
