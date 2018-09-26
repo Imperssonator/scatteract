@@ -56,14 +56,20 @@ def load_idl_tf(idlfile, H, jitter):
         random.shuffle(annos)
         for anno in annos:
             try:
+                
+                # Here it seems we randomly read images in as grayscale with some probability
+                # Then the image is converted to shape HxWx3 so it fits the input shape of the model
+                # If there's no 'grayscale_prob', it simply reads in images in rgb mode. There was
+                # a check for len(I.shape) < 3, but it happened before I was created.......
+                
                 if 'grayscale' in H and 'grayscale_prob' in H:
                     I = imread(anno.imageName, mode = 'RGB' if random.random() < H['grayscale_prob'] else 'L')
                     if len(I.shape) < 3:
                         I = cv2.cvtColor(I, cv2.COLOR_GRAY2RGB)
                 else:
-                    if len(I.shape) < 3:
-                        continue
                     I = imread(anno.imageName, mode = 'RGB')
+#                    if len(I.shape) < 3:
+#                        continue
                 if I.shape[0] != H["image_height"] or I.shape[1] != H["image_width"]:
                     if epoch == 0:
                         anno = rescale_boxes(I.shape, anno, H["image_height"], H["image_width"])
