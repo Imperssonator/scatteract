@@ -28,6 +28,7 @@ import string
 import os
 import argparse
 import scatteract_logger
+from glob import glob
 
 
 ### SETTING CONSTANT PARAMTERS #####
@@ -43,7 +44,7 @@ color_subtick_list = ['b','g','r','k', 'k', 'k', '0.7', '0.85']
 
 direction_ticks = ['in','out','inout']
 
-font_list = ['fonts/' + name for name in os.listdir('fonts')]
+font_list = glob('fonts/*.ttf')
  
 
 dpi_min = 85
@@ -349,7 +350,7 @@ def get_random_plot(name, direc):
 
     # MAKE SURE THE PLOT FITS INSIDE THE FIGURES
     plt.tight_layout()
-
+#    plt.savefig(os.path.join(direc,name), dpi='figure', facecolor=fig.get_facecolor())
     plt.savefig("./data/{}/".format(direc)+name, dpi='figure', facecolor=fig.get_facecolor())
 
     return ax, fig, x, y, s, categories, tick_size, axes_x_pos, axes_y_pos

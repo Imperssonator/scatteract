@@ -1,7 +1,7 @@
 {
     "data": {
-        "train_idl": "./data/test_data/train_labels.idl",
-        "test_idl": "./data/test_data/test_labels.idl",
+        "train_idl": "./data/mpl1000/train_labels.idl",
+        "test_idl": "./data/mpl1000/test_labels.idl",
         "truncate_data": false
     },
     "logging": {
