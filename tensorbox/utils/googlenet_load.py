@@ -1,7 +1,7 @@
-from slim_nets import inception_v1 as inception
-from slim_nets import resnet_v1 as resnet
-from slim_nets import inception_resnet_v2
-from slim_nets import mobilenet_v1
+from .slim_nets import inception_v1 as inception
+from .slim_nets import resnet_v1 as resnet
+from .slim_nets import inception_resnet_v2
+from .slim_nets import mobilenet_v1
 import tensorflow.contrib.slim as slim
 
 def model(x, H, reuse, is_training=True):

@@ -1,6 +1,3 @@
-from __future__ import division
-from builtins import str
-from past.utils import old_div
 import tensorflow as tf
 from tensorflow.python.tools.freeze_graph import freeze_graph
 from train import build_forward
@@ -17,8 +14,8 @@ def create_frozen_graph(args, H):
 
 def create_graph(args, H):
     tf.reset_default_graph()
-    H["grid_width"] = old_div(H["image_width"], H["region_size"])
-    H["grid_height"] = old_div(H["image_height"], H["region_size"])
+    H["grid_width"] = H["image_width"] / H["region_size"]
+    H["grid_height"] = H["image_height"] / H["region_size"]
     x_in = tf.placeholder(tf.float32, name='x_in', shape=[H['image_height'], H['image_width'], 3])
     if H['use_rezoom']:
         pred_boxes, pred_logits, pred_confidences, pred_confs_deltas, pred_boxes_deltas = build_forward(H, tf.expand_dims(x_in, 0), 'test', reuse=None)

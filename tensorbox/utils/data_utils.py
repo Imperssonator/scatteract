@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import map
+from builtins import range
+from past.utils import old_div
 import os
 import cv2
 import re
@@ -6,14 +11,14 @@ import argparse
 import numpy as np
 import copy
 import json
-import annolist.AnnotationLib as al
+from .annolist import AnnotationLib as al
 from xml.etree import ElementTree
 from scipy.misc import imread
 
 def annotation_to_h5(H, a, cell_width, cell_height, max_len):
     region_size = H['region_size']
-    assert H['region_size'] == H['image_height'] / H['grid_height']
-    assert H['region_size'] == H['image_width'] / H['grid_width']
+    assert H['region_size'] == old_div(H['image_height'], H['grid_height'])
+    assert H['region_size'] == old_div(H['image_width'], H['grid_width'])
     cell_regions = get_cell_grid(cell_width, cell_height, region_size)
 
     cells_per_image = len(cell_regions)
@@ -26,14 +31,14 @@ def annotation_to_h5(H, a, cell_width, cell_height, max_len):
     boxes = np.zeros((1, cells_per_image, 4, max_len, 1), dtype = np.float)
     box_flags = np.zeros((1, cells_per_image, 1, max_len, 1), dtype = np.float)
 
-    for cidx in xrange(cells_per_image):
+    for cidx in range(cells_per_image):
         #assert(cur_num_boxes <= max_len)
 
         cell_ox = 0.5 * (cell_regions[cidx].x1 + cell_regions[cidx].x2)
         cell_oy = 0.5 * (cell_regions[cidx].y1 + cell_regions[cidx].y2)
 
         unsorted_boxes = []
-        for bidx in xrange(min(len(box_list[cidx]), max_len)):
+        for bidx in range(min(len(box_list[cidx]), max_len)):
 
             # relative box position with respect to cell
             ox = 0.5 * (box_list[cidx][bidx].x1 + box_list[cidx][bidx].x2) - cell_ox
@@ -55,8 +60,8 @@ def annotation_to_h5(H, a, cell_width, cell_height, max_len):
 def get_cell_grid(cell_width, cell_height, region_size):
 
     cell_regions = []
-    for iy in xrange(cell_height):
-        for ix in xrange(cell_width):
+    for iy in range(cell_height):
+        for ix in range(cell_width):
             cidx = iy * cell_width + ix
             ox = (ix + 0.5) * region_size
             oy = (iy + 0.5) * region_size
@@ -88,10 +93,10 @@ def annotation_jitter(I, a_in, min_box_width=20, jitter_scale_min=0.9, jitter_sc
     if a.rects:
         cur_min_box_width = min([r.width() for r in a.rects])
     else:
-        cur_min_box_width = min_box_width / jitter_scale_min
+        cur_min_box_width = old_div(min_box_width, jitter_scale_min)
 
     # don't downscale below min_box_width 
-    jitter_scale_min = max(jitter_scale_min, float(min_box_width) / cur_min_box_width)
+    jitter_scale_min = max(jitter_scale_min, old_div(float(min_box_width), cur_min_box_width))
 
     # it's always ok to upscale 
     jitter_scale_min = min(jitter_scale_min, 1.0)
@@ -223,10 +228,10 @@ def convert_pets2009(filename, version, dirname):
             "image_path" : "{}/frame_{:04d}.jpg".format(dirname, int(frame.attrib['number'])),
             "rects" : [
                 {
-                    'x1' : float(obj[0].attrib['xc']) - float(obj[0].attrib['w']) / 2,
-                    'x2' : float(obj[0].attrib['xc']) + float(obj[0].attrib['w']) / 2,
-                    'y1' : float(obj[0].attrib['yc']) - float(obj[0].attrib['h']) / 2,
-                    'y2' : float(obj[0].attrib['yc']) + float(obj[0].attrib['h']) / 2,
+                    'x1' : float(obj[0].attrib['xc']) - old_div(float(obj[0].attrib['w']), 2),
+                    'x2' : float(obj[0].attrib['xc']) + old_div(float(obj[0].attrib['w']), 2),
+                    'y1' : float(obj[0].attrib['yc']) - old_div(float(obj[0].attrib['h']), 2),
+                    'y2' : float(obj[0].attrib['yc']) + old_div(float(obj[0].attrib['h']), 2),
                 } for obj in frame[0].findall('object')
             ] 
         } for frame in root.findall('frame') 
@@ -242,10 +247,10 @@ def convert_tud_campus(filename, dirname):
             "image_path" : "{}/DaSide0811-seq6-{:03d}.png".format(dirname, int(frame.attrib['number'])),
             "rects" : [
                 {
-                    'x1' : float(obj[0].attrib['xc']) - float(obj[0].attrib['w']) / 2,
-                    'x2' : float(obj[0].attrib['xc']) + float(obj[0].attrib['w']) / 2,
-                    'y1' : float(obj[0].attrib['yc']) - float(obj[0].attrib['h']) / 2,
-                    'y2' : float(obj[0].attrib['yc']) + float(obj[0].attrib['h']) / 2,
+                    'x1' : float(obj[0].attrib['xc']) - old_div(float(obj[0].attrib['w']), 2),
+                    'x2' : float(obj[0].attrib['xc']) + old_div(float(obj[0].attrib['w']), 2),
+                    'y1' : float(obj[0].attrib['yc']) - old_div(float(obj[0].attrib['h']), 2),
+                    'y2' : float(obj[0].attrib['yc']) + old_div(float(obj[0].attrib['h']), 2),
                 } for obj in frame[0].findall('object')
             ] 
         } for frame in root.findall('frame') 
@@ -261,10 +266,10 @@ def convert_tud_crossing(filename, dirname):
             "image_path" : "{}/DaSide0811-seq7-{:03d}.png".format(dirname, int(frame.attrib['number'])),
             "rects" : [
                 {
-                    'x1' : float(obj[0].attrib['xc']) - float(obj[0].attrib['w']) / 2,
-                    'x2' : float(obj[0].attrib['xc']) + float(obj[0].attrib['w']) / 2,
-                    'y1' : float(obj[0].attrib['yc']) - float(obj[0].attrib['h']) / 2,
-                    'y2' : float(obj[0].attrib['yc']) + float(obj[0].attrib['h']) / 2,
+                    'x1' : float(obj[0].attrib['xc']) - old_div(float(obj[0].attrib['w']), 2),
+                    'x2' : float(obj[0].attrib['xc']) + old_div(float(obj[0].attrib['w']), 2),
+                    'y1' : float(obj[0].attrib['yc']) - old_div(float(obj[0].attrib['h']), 2),
+                    'y2' : float(obj[0].attrib['yc']) + old_div(float(obj[0].attrib['h']), 2),
                 } for obj in frame[0].findall('object')
             ] 
         } for frame in root.findall('frame') 
@@ -346,7 +351,7 @@ def convert_berkley_mat(filename, datadir
         if rect not in res[image_path]:
             res[image_path].append(rect)
     res2 = []
-    for key, rects in res.iteritems():
+    for key, rects in res.items():
         res2.append(
             {
                 "image_path": key,
@@ -365,7 +370,7 @@ def convert_berkley(textfile, annos, datadir):
         annos2[anno["image_path"]] = anno["rects"]
     prefixes = ['leftover', 'train', 'val', 'test']
     for line in open(textfile):
-        photoset_id, photo_id, xmin, ymin, width, height, dentity_id, subset_id = map(int, line.split())
+        photoset_id, photo_id, xmin, ymin, width, height, dentity_id, subset_id = list(map(int, line.split()))
         image_path = "{}/{}_{}.jpg".format(prefixes[subset_id], photoset_id, photo_id)
         if image_path not in annos2:
             annos2[image_path] = []
@@ -378,7 +383,7 @@ def convert_berkley(textfile, annos, datadir):
         if rect not in annos2[image_path]:
             annos2[image_path].append(rect)
     res = []
-    for key, rects in annos2.iteritems():
+    for key, rects in annos2.items():
         res.append(
             {
                 "image_path": "{}/{}".format(datadir, key),

@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import tensorflow as tf
 import os
 import json
@@ -43,8 +48,8 @@ def load_frozen_graph(frozen_graph_filename):
 
 def get_results(args, H, data_dir):
     tf.reset_default_graph()
-    H["grid_width"] = H["image_width"] / H["region_size"]
-    H["grid_height"] = H["image_height"] / H["region_size"]
+    H["grid_width"] = old_div(H["image_width"], H["region_size"])
+    H["grid_height"] = old_div(H["image_height"], H["region_size"])
     if args.frozen_graph:
         graph = load_frozen_graph(args.graphfile)
     else:

@@ -1,12 +1,4 @@
 #!/usr/bin/env python
-from __future__ import division
-from __future__ import print_function
-from builtins import map
-from builtins import next
-from builtins import zip
-from builtins import range
-from builtins import object
-from past.utils import old_div
 import json
 import tensorflow.contrib.slim as slim
 import random
@@ -38,7 +30,7 @@ from utils.train_utils import add_rectangles, rescale_boxes
 
 @ops.RegisterGradient("Hungarian")     
 def _hungarian_grad(op, *args):       
-    return list(map(array_ops.zeros_like, op.inputs))
+    return map(array_ops.zeros_like, op.inputs)
 
 def deconv(x, output_shape, channels):
     k_h = 2
@@ -93,7 +85,7 @@ def rezoom(H, pred_boxes, early_feat, early_feat_channels, w_offsets, h_offsets)
 
 class TensorBox(object):
     def __init__(self, H):
-        for key, value in list(H.items()):
+        for key, value in H.items():
             # Make sure the integers are integers so tensorflow doesn't throw a bloody fit
             try:
                 val_int = int(value)
@@ -225,7 +217,7 @@ class TensorBox(object):
                 if phase == 'train':
                     rezoom_features = tf.nn.dropout(rezoom_features, 0.5)
                 for k in range(self.H['rnn_len']):
-                    delta_features = tf_concat(1, [lstm_outputs[k], old_div(rezoom_features[:, k, :], 1000.)])
+                    delta_features = tf_concat(1, [lstm_outputs[k], rezoom_features[:, k, :] / 1000.])
                     dim = 128
                     delta_weights1 = tf.get_variable(
                                         'delta_ip1%d' % k,
@@ -288,7 +280,7 @@ class TensorBox(object):
             boxes_loss = tf.reduce_sum(tf.abs(residual)) / outer_size * self.H['solver']['head_weights'][1]
             if self.H['use_rezoom']:
                 if self.H['rezoom_change_loss'] == 'center':
-                    error = old_div((perm_truth[:, :, 0:2] - pred_boxes[:, :, 0:2]), tf.maximum(perm_truth[:, :, 2:4], 1.))
+                    error = (perm_truth[:, :, 0:2] - pred_boxes[:, :, 0:2]) / tf.maximum(perm_truth[:, :, 2:4], 1.)
                     square_error = tf.reduce_sum(tf.square(error), 2)
                     inside = tf.reshape(tf.to_int64(tf.logical_and(tf.less(square_error, 0.2**2), tf.greater(classes, 0))), [-1])
                 elif self.H['rezoom_change_loss'] == 'iou':
@@ -414,7 +406,7 @@ class TensorBox(object):
                                                         rnn_len=self.H['rnn_len'], show_suppressed=True)[0]
 
                     num_images = 10
-                    img_path = os.path.join(self.H['save_dir'], '%s_%s.jpg' % ((old_div(np_global_step, self.H['logging']['display_iter'])) % num_images, pred_or_true))
+                    img_path = os.path.join(self.H['save_dir'], '%s_%s.jpg' % ((np_global_step / self.H['logging']['display_iter']) % num_images, pred_or_true))
                     misc.imsave(img_path, merged)
                     return merged
 
@@ -444,8 +436,8 @@ class TensorBox(object):
         with open(self.H['save_dir'] + '/hypes.json', 'w') as f:
             json.dump(self.H, f, indent=4)
         
-        self.H["grid_width"] = int(old_div(self.H["image_width"], self.H["region_size"]))
-        self.H["grid_height"] = int(old_div(self.H["image_height"], self.H["region_size"]))
+        self.H["grid_width"] = int(self.H["image_width"] / self.H["region_size"])
+        self.H["grid_height"] = int(self.H["image_height"] / self.H["region_size"])
 
         x_in = tf.placeholder(tf.float32)
         confs_in = tf.placeholder(tf.float32)
@@ -519,7 +511,7 @@ class TensorBox(object):
             for i in range(max_iter):
                 display_iter = self.H['logging']['display_iter']
                 adjusted_lr = (self.H['solver']['learning_rate'] *
-                               0.5 ** max(0, (old_div(i, self.H['solver']['learning_rate_step'])) - 2))
+                               0.5 ** max(0, (i / self.H['solver']['learning_rate_step']) - 2))
                 lr_feed = {learning_rate: adjusted_lr}
 
                 if i % display_iter != 0:
@@ -528,7 +520,7 @@ class TensorBox(object):
                 else:
                     # test network every N iterations; log additional info
                     if i > 0:
-                        dt = old_div((time.time() - start), (self.H['batch_size'] * display_iter))
+                        dt = (time.time() - start) / (self.H['batch_size'] * display_iter)
                     start = time.time()
                     (train_loss, test_accuracy, summary_str,
                         _, _) = sess.run([loss['train'], accuracy['test'],
@@ -556,8 +548,8 @@ class TensorBox(object):
         return image_dir
 
     def eval(self, weights, test_boxes, min_conf, tau, show_suppressed, expname):
-        self.H["grid_width"] = int(old_div(self.H["image_width"], self.H["region_size"]))
-        self.H["grid_height"] = int(old_div(self.H["image_height"], self.H["region_size"]))
+        self.H["grid_width"] = int(self.H["image_width"] / self.H["region_size"])
+        self.H["grid_height"] = int(self.H["image_height"] / self.H["region_size"])
         x_in = tf.placeholder(tf.float32, name='x_in', shape=[self.H['image_height'], self.H['image_width'], 3])
         if self.H['use_rezoom']:
             pred_boxes, pred_logits, pred_confidences, pred_confs_deltas, pred_boxes_deltas = self.build_forward(tf.expand_dims(x_in, 0), 'test', reuse=None)
