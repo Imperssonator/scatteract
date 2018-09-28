@@ -2,6 +2,7 @@ from libcpp.vector cimport vector
 from libcpp.set cimport set
 
 class PyRect(object):
+
     def __init__(self, cx, cy, width, height, confidence):
         self.cx = cx
         self.cy = cy
@@ -9,13 +10,18 @@ class PyRect(object):
         self.height = height
         self.confidence = confidence
         self.true_confidence = confidence
+        
+        
     def overlaps(self, other):
+    
         if abs(self.cx - other.cx) > (self.width + other.width) / 1.5:
             return False
         elif abs(self.cy - other.cy) > (self.height + other.height) / 2.0:
             return False
         else:
             return True
+            
+            
     def distance(self, other):
         return sum(map(abs, [self.cx - other.cx, self.cy - other.cy,
                        self.width - other.width, self.height - other.height]))

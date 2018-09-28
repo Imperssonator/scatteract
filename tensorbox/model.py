@@ -408,7 +408,8 @@ class TensorBox(object):
                 test_pred_boxes = pred_boxes_r[0, :, :, :]
 
                 def log_image(np_img, np_confidences, np_boxes, np_global_step, pred_or_true):
-
+                
+                    # This is where the test images are generated with the red and green boxes
                     merged = train_utils.add_rectangles(self.H, np_img, np_confidences, np_boxes,
                                                         use_stitching=True,
                                                         rnn_len=self.H['rnn_len'], show_suppressed=True)[0]

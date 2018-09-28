@@ -135,34 +135,59 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
                                              rnn_len,
                                              H['num_classes']))
     cell_pix_size = H['region_size']
+    
+    
+    # all_rects is an "array" of lists (grid_height, grid_width, ?) that builds up all of the bounding boxes
+    # found in each cell. Ultimately the 3rd dimension will have length num_boxes_in_cell
     all_rects = [[[] for _ in range(H["grid_width"])] for _ in range(H["grid_height"])]
+    
     for n in range(rnn_len):
         for y in range(H["grid_height"]):
             for x in range(H["grid_width"]):
+            
                 bbox = boxes_r[0, y, x, n, :]
+                
+                # These next couple lines appear to convert from cell-based coordinates to absolute image coordinates
+                # i.e. the origin corner of the bounding box is defined relative to a cell, not the origin of the image
                 abs_cx = int(bbox[0]) + old_div(cell_pix_size,2) + cell_pix_size * x
                 abs_cy = int(bbox[1]) + old_div(cell_pix_size,2) + cell_pix_size * y
+                
+                # However, width and height of bounding box are still in absolute original pixels
                 w = bbox[2]
                 h = bbox[3]
+                
+                # Appear to be taking the confidence of every class but the first (assuming they add to 1...),
+                # Or maybe this is designed only for binary classification now
                 conf = np.max(confidences_r[0, y, x, n, 1:])
                 all_rects[y][x].append(Rect(abs_cx,abs_cy,w,h,conf))
 
     all_rects_r = [r for row in all_rects for cell in row for r in cell]
+    
+    
+    # Stitching looks a lot like a hacky way to deal with what are essentially bad predictions
     if use_stitching:
         from stitch_wrapper import stitch_rects
         acc_rects = stitch_rects(all_rects, tau)
     else:
         acc_rects = all_rects_r
 
-
+        
+    # Pairs is a list of tuples: ([list of rect bounding boxes in openCV format], RGB_tuple)
     if show_suppressed:
+        # Red if it's an originally predicted box
         pairs = [(all_rects_r, (255, 0, 0))]
     else:
         pairs = []
+    # Green if it's a stitched box
     pairs.append((acc_rects, (0, 255, 0)))
+    
+    
     for rect_set, color in pairs:
+        # The important part here is that acc_rects is drawn AFTER all_rects... so green boxes should appear over red ones
         for rect in rect_set:
             if rect.confidence > min_conf:
+                # min_conf default is 0.1...
+                # So it appears that low-confidence rects that were later stitched are drawn
                 cv2.rectangle(image,
                     (rect.cx-int(old_div(rect.width,2)), rect.cy-int(old_div(rect.height,2))),
                     (rect.cx+int(old_div(rect.width,2)), rect.cy+int(old_div(rect.height,2))),

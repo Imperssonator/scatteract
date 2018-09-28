@@ -12,9 +12,9 @@
         "opt": "RMS",
         "use_jitter": false,
         "rnd_seed": 1,
-        "epsilon": 0.00001, 
-        "learning_rate": 0.001, 
-        "learning_rate_step": 33000, 
+        "epsilon": 0.00001,
+        "learning_rate": 0.002,
+        "learning_rate_step": 20000,
         "hungarian_iou": 0.25,
         "weights": "",
         "head_weights": [1.0, 0.1]
@@ -34,14 +34,14 @@
     "slim_attention_lname": "Mixed_3b",
     "slim_basename": "InceptionV1",
     "slim_ckpt": "inception_v1.ckpt",
-    "num_lstm_layers": 2,
-    "image_width": 640, 
-    "image_height": 480,
-    "batch_size": 1, 
+    "num_lstm_layers": 5,
+    "image_width": 1280,
+    "image_height": 960,
+    "batch_size": 1,
     "region_size": 32,
     "clip_norm": 1.0,
     "lstm_size": 500,
     "deconv": false,
     "num_classes": 2,
-    "rnn_len": 5
+    "rnn_len": 15
 }
