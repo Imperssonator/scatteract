@@ -17,7 +17,7 @@
 import tensorflow as tf
 import json
 from scipy.misc import imresize, imsave
-from tensorbox.model import build_forward
+from tensorbox.model import TensorBox
 from tensorbox.utils import googlenet_load
 from tensorbox.utils.annolist import AnnotationLib as al
 from tensorbox.utils.train_utils import add_rectangles, rescale_boxes
@@ -31,6 +31,7 @@ import pandas as pd
 import time
 import argparse
 import os
+from glob import glob
 import scatteract_logger
 
 
@@ -93,17 +94,25 @@ class PlotExtractor(object):
 
         self.models = {}
         for key in self.H:
-            graph, x_in, pred_boxes, pred_logits, pred_confidences, saver = self.init_model(self.H[key])
-            self.models[key] = {'graph': graph, 'x_in':x_in, 'pred_boxes':pred_boxes, 'pred_logits':pred_logits,
-                                 'pred_confidences':pred_confidences,'saver':saver, 'dir': self.my_dir_dict[key]}
-
+            (graph,
+             x_in,
+             pred_boxes,
+             pred_logits,
+             pred_confidences,
+             saver) = self.init_model(self.H[key])
+             
+            self.models[key] = {'graph': graph,
+                                'x_in':x_in,
+                                'pred_boxes':pred_boxes,
+                                'pred_logits':pred_logits,
+                                'pred_confidences':pred_confidences,
+                                'saver':saver,
+                                'dir': self.my_dir_dict[key]}
 
         color_list = [(255,0,0), (0,255,0), (0,0,255), (0,255,255), (0,128,0), (0,0,128)]
         self.color_dict = {}
-        index = 0
-        for key in self.H:
+        for index,key in enumerate(self.H):
             self.color_dict[key] = color_list[index]
-            index+=1
 
 
     def init_model(self, H):
@@ -121,17 +130,48 @@ class PlotExtractor(object):
         """
 
         graph = tf.Graph()
+        
         with graph.as_default():
-            googlenet = googlenet_load.init(H)
-            x_in = tf.placeholder(tf.float32, name='x_in', shape=[H['image_height'], H['image_width'], 3])
+            
+            x_in = tf.placeholder(tf.float32,
+                                  name='x_in',
+                                  shape=[H['image_height'],
+                                         H['image_width'],
+                                         3]
+                                  )
+                                  
             if H['use_rezoom']:
-                pred_boxes, pred_logits, pred_confidences, pred_confs_deltas, pred_boxes_deltas = build_forward(H, tf.expand_dims(x_in, 0), googlenet, 'test', reuse=None)
+                
+                TB = TensorBox(H)
+                
+                (pred_boxes,
+                 pred_logits,
+                 pred_confidences,
+                 pred_confs_deltas,
+                 pred_boxes_deltas) = TB.build_forward(tf.expand_dims(x_in, 0),
+                                                       'test',
+                                                       reuse=None
+                                                       )
+                                                    
                 grid_area = H['grid_height'] * H['grid_width']
-                pred_confidences = tf.reshape(tf.nn.softmax(tf.reshape(pred_confs_deltas, [grid_area * H['rnn_len'], 2])), [grid_area, H['rnn_len'], 2])
+                pred_confidences = tf.reshape(tf.nn.softmax(
+                                                            tf.reshape(pred_confs_deltas,
+                                                                       [grid_area * H['rnn_len'], 2]
+                                                                       )
+                                                            ),
+                                              [grid_area, H['rnn_len'], 2]
+                                              )
                 if H['reregress']:
                     pred_boxes = pred_boxes + pred_boxes_deltas
+        
             else:
-                pred_boxes, pred_logits, pred_confidences = build_forward(H, tf.expand_dims(x_in, 0), googlenet, 'test', reuse=None)
+                TB = TensorBox(H)
+                (pred_boxes,
+                 pred_logits,
+                 pred_confidences) = TB.build_forward(tf.expand_dims(x_in, 0),
+                                                      'test',
+                                                      reuse=None
+                                                      )
             saver = tf.train.Saver()
 
         return graph, x_in, pred_boxes, pred_logits, pred_confidences, saver
@@ -158,6 +198,41 @@ class PlotExtractor(object):
         return img
 
 
+    def test_pts(self,image_dir, image_output_dir, csv_output_dir , true_idl_dict = None, coord_idl = None, predict_idl = None,
+             quick = False, conf_threshold = 0.3, max_dist_perc = 2.0):
+        """
+        Method used to test the object on a set of scatter plots.
+        Inputs:
+        true_idl_dict (dictionary): Dictionary where the key is the object name (ticks, points, labels) and
+        the values are the path to their corresponding idl file which may or may not contain the ground truth.
+        image_dir: (string): Path to the location of the images
+        image_output_dir (string): Path to the location where we want to save new images with marked bounding boxes.
+        csv_output_dir (string): Path to the location where we want to save the output csv for each images.
+        coord_idl: (string) Optional, ground truth idl for the real coordinate values.
+        Outputs:
+        pred_dict: (dictionary) Dictionary of dataframes which contains the predicted coordinate values.
+        """
+        
+        os.makedirs(image_output_dir, exist_ok=True)
+        os.makedirs(csv_output_dir, exist_ok=True)
+
+        start_time = time.time()
+        true_annos_dict=None
+
+        pred_dict = {}
+        for key in self.models:
+            
+            pred_dict[key] = self.predict_model_no_truth(self.models[key],
+                                                         self.H[key],
+                                                         image_dir,
+                                                         conf_threshold,
+                                                         image_output_dir=image_output_dir)
+                                                         
+            pred_dict[key].save('{}/model_pred_{}.idl'.format(self.models[key]['dir'],self.iteration))
+
+#            mylogger.debug("{} images/sec".format(float(len(pred_dict['labels']))/(time.time()-start_time)))
+
+
     def test(self,image_dir, image_output_dir, csv_output_dir , true_idl_dict = None, coord_idl = None, predict_idl = None,
              quick = False, conf_threshold = 0.3, max_dist_perc = 2.0):
         """
@@ -173,10 +248,8 @@ class PlotExtractor(object):
         pred_dict: (dictionary) Dictionary of dataframes which contains the predicted coordinate values.
         """
 
-        if not os.path.exists(image_output_dir):
-            os.makedirs(image_output_dir)
-        if not os.path.exists(csv_output_dir):
-            os.makedirs(csv_output_dir)
+        os.makedirs(image_output_dir, exist_ok=True)
+        os.makedirs(csv_output_dir, exist_ok=True)
 
         if true_idl_dict is not None:
             true_annos_dict = {key:al.parse(true_idl_dict[key]) for key in true_idl_dict}
@@ -212,7 +285,57 @@ class PlotExtractor(object):
         return pred_dict
 
 
-    def predict_model(self,model, H, true_annos, image_dir, conf_threshold):
+    def predict_model_no_truth(self, model, H, image_dir, conf_threshold, image_output_dir=None):
+        """
+        Method uses to get the prediction from the object detection models.
+        Inputs:
+        model (dictionary) : Dictionary which contains all the Tensorflow object required to run the model
+        H (dictionary): Loaded json hype which describes the hyperparameters of the models.
+        image_dir: (string): Path to the location of the images
+        Outputs:
+        annolist (Annotationlist): List of annotations which contain the predicted bounding boxes.
+        """
+        
+        if image_output_dir==None:
+            image_output_dir=image_dir
+        
+        annolist = al.AnnoList()
+        img_list = []
+        for fmt in ["jpg","jpeg","png","tiff","tif","gif","bmp"]:
+            img_list.extend(glob(os.path.join(image_dir,"*.{}".format(fmt))))
+        
+        with tf.Session(graph = model['graph']) as sess:
+            
+            sess.run(tf.global_variables_initializer())
+            model['saver'].restore(sess, '{}/save.ckpt-{}'.format(model['dir'],self.iteration))
+            
+            for img_file in img_list:
+                
+                img = self.open_image(img_file)
+                img_orig = np.copy(img)
+                
+                if img.shape[0] != H["image_height"] or img.shape[1] != H["image_width"]:
+                    img = imresize(img, (H["image_height"], H["image_width"]), interp='cubic')
+            
+                (np_pred_boxes, np_pred_confidences) = sess.run([model['pred_boxes'], model['pred_confidences']],
+                                                                feed_dict={model['x_in']: img})
+                    
+                pred_anno = al.Annotation()
+                pred_anno.imageName = img_file
+                new_img, rects = add_rectangles(H, [img], np_pred_confidences, np_pred_boxes,
+                                                use_stitching=True, rnn_len=H['rnn_len'],
+                                                min_conf=conf_threshold, show_suppressed=False)
+                
+                imsave(os.path.join(image_output_dir,img_file+"_pred.png"),
+                       new_img)
+                       
+                pred_anno.rects = rects
+                pred_anno = rescale_boxes(img.shape, pred_anno, img_orig.shape[0], img_orig.shape[1])
+                annolist.append(pred_anno)
+
+        return annolist
+
+    def predict_model(self, model, H, true_annos, image_dir, conf_threshold):
         """
         Method uses to get the prediction from the object detection models.
         Inputs:
@@ -225,11 +348,14 @@ class PlotExtractor(object):
         """
 
         annolist = al.AnnoList()
+        
         with tf.Session(graph = model['graph']) as sess:
-            sess.run(tf.initialize_all_variables())
+            
+            sess.run(tf.global_variables_initializer())
             model['saver'].restore(sess, '{}/save.ckpt-{}'.format(model['dir'],self.iteration))
 
             for i in range(len(true_annos)):
+                
                 true_anno = true_annos[i]
 
                 img = self.open_image(image_dir+true_anno.imageName)

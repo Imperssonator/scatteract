@@ -102,6 +102,8 @@ class TensorBox(object):
             except:
                 pass
         self.H = H
+        self.H["grid_width"] = int(old_div(self.H["image_width"], self.H["region_size"]))
+        self.H["grid_height"] = int(old_div(self.H["image_height"], self.H["region_size"]))
 
     def build_overfeat_inner(self, lstm_input):
         '''
@@ -444,9 +446,6 @@ class TensorBox(object):
         ckpt_file = self.H['save_dir'] + '/save.ckpt'
         with open(self.H['save_dir'] + '/hypes.json', 'w') as f:
             json.dump(self.H, f, indent=4)
-        
-        self.H["grid_width"] = int(old_div(self.H["image_width"], self.H["region_size"]))
-        self.H["grid_height"] = int(old_div(self.H["image_height"], self.H["region_size"]))
 
         x_in = tf.placeholder(tf.float32)
         confs_in = tf.placeholder(tf.float32)
@@ -557,8 +556,7 @@ class TensorBox(object):
         return image_dir
 
     def eval(self, weights, test_boxes, min_conf, tau, show_suppressed, expname):
-        self.H["grid_width"] = int(old_div(self.H["image_width"], self.H["region_size"]))
-        self.H["grid_height"] = int(old_div(self.H["image_height"], self.H["region_size"]))
+        
         x_in = tf.placeholder(tf.float32, name='x_in', shape=[self.H['image_height'], self.H['image_width'], 3])
         if self.H['use_rezoom']:
             pred_boxes, pred_logits, pred_confidences, pred_confs_deltas, pred_boxes_deltas = self.build_forward(tf.expand_dims(x_in, 0), 'test', reuse=None)
