@@ -1,0 +1,9 @@
+param,dist
+color,colors
+marker,markers
+markersize,marker_size
+linestyle,line_styles
+alpha,alpha
+markerfacecolor,colors
+markeredgecolor,colors
+markeredgewidth,line_widths

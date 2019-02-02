@@ -1,0 +1,58 @@
+markers,line_styles,colors,bg_colors,tick_directions,point_dist,font_weights,font_styles,font_names
+o,solid,b,w,in,uniform,regular,normal,fonts/ARIAL.TTF
+v,dashed,g,0.98,out,linear,bold,italic,fonts/ARIALBD.TTF
+^,dashdot,r,0.96,inout,quadratic,regular,normal,fonts/ARIALBI.TTF
+<,dotted,k,0.94,,,regular,normal,fonts/ARIALI.TTF
+>,solid,0.05,0.92,,,regular,normal,fonts/ARIALUNI.TTF
+s,solid,0.1,0.9,,,,,fonts/CALIBRI.TTF
+p,dashed,0.15,xkcd:sand,,,,,fonts/CALIBRIB.TTF
+*,dashed,0.2,xkcd:light grey,,,,,fonts/CALIBRII.TTF
+h,None,0.25,xkcd:light yellow,,,,,fonts/CALIBRIL.TTF
+H,None,xkcd:purple,xkcd:cream,,,,,fonts/CALIBRILI.TTF
++,None,xkcd:pink,xkcd:off white,,,,,fonts/CALIBRIZ.TTF
+x,None,xkcd:brown,xkcd:eggshell,,,,,fonts/CAMBRIAB.TTF
+D,None,xkcd:light blue,xkcd:pale grey,,,,,fonts/CAMBRIAI.TTF
+d,None,xkcd:teal,xkcd:very light pink,,,,,fonts/CAMBRIAZ.TTF
+o,None,xkcd:orange,xkcd:pale,,,,,fonts/CONSOLA.TTF
+o,None,xkcd:light green,xkcd:light light blue,,,,,fonts/CONSOLAB.TTF
+o,,xkcd:magenta,w,,,,,fonts/CONSOLAI.TTF
+o,,xkcd:olive,w,,,,,fonts/CONSOLAZ.TTF
+o,,xkcd:maroon,w,,,,,fonts/COUR.TTF
+s,,xkcd:forest green,w,,,,,fonts/COURBD.TTF
+s,,xkcd:royal blue,w,,,,,fonts/COURBI.TTF
+s,,xkcd:dark pink,w,,,,,fonts/COURI.TTF
+s,,xkcd:periwinkle,w,,,,,fonts/DejaVuSans.ttf
+s,,xkcd:sea green,w,,,,,fonts/DejaVuSansMono-Bold.ttf
+D,,xkcd:lime,w,,,,,fonts/DejaVuSansMono.ttf
+D,,xkcd:indigo,w,,,,,fonts/DejaVuSerif-Bold.ttf
+D,,xkcd:burnt orange,w,,,,,fonts/DejaVuSerif.ttf
+D,,xkcd:rose,w,,,,,fonts/L_10646.TTF
+D,,xkcd:navy,w,,,,,fonts/MathJax_Main-Bold.otf
+,,xkcd:plum,w,,,,,fonts/MathJax_Main-Italic.otf
+,,xkcd:brick red,w,,,,,fonts/MathJax_Main-Regular.otf
+,,xkcd:dark teal,w,,,,,fonts/MathJax_SansSerif-Bold.otf
+,,xkcd:gold,,,,,,fonts/MathJax_SansSerif-Italic.otf
+,,xkcd:burgundy,,,,,,fonts/MathJax_SansSerif-Regular.otf
+,,xkcd:bright pink,,,,,,fonts/MathJax_Typewriter-Regular.otf
+,,xkcd:cerulean,,,,,,fonts/MICROSS.TTF
+,,xkcd:light red,,,,,,fonts/PALA.TTF
+,,k,,,,,,fonts/PALAB.TTF
+,,k,,,,,,fonts/PALABI.TTF
+,,k,,,,,,fonts/PALAI.TTF
+,,k,,,,,,fonts/SEGOEUI.TTF
+,,k,,,,,,fonts/SEGOEUIB.TTF
+,,k,,,,,,fonts/SEGOEUII.TTF
+,,k,,,,,,fonts/SEGOEUIL.TTF
+,,k,,,,,,fonts/SEGOEUISL.TTF
+,,k,,,,,,fonts/SEGOEUIZ.TTF
+,,k,,,,,,fonts/SEGUISB.TTF
+,,k,,,,,,fonts/TAHOMA.TTF
+,,k,,,,,,fonts/TAHOMABD.TTF
+,,k,,,,,,fonts/TIMES.TTF
+,,k,,,,,,fonts/TIMESBD.TTF
+,,k,,,,,,fonts/TIMESBI.TTF
+,,k,,,,,,fonts/TIMESI.TTF
+,,k,,,,,,fonts/VERDANA.TTF
+,,k,,,,,,fonts/VERDANAB.TTF
+,,,,,,,,fonts/VERDANAI.TTF
+,,,,,,,,fonts/VERDANAZ.TTF

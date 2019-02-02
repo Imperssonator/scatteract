@@ -1,0 +1,15 @@
+param,dist
+bottom,0.9
+top,0.7
+left,0.9
+right,0.7
+direction,tick_directions
+length,tick_lengths_major
+width,line_widths
+color,colors
+grid_linestyle,line_styles
+grid_color,colors
+grid_alpha,alpha
+grid_linewidth,line_widths
+labelcolor,colors
+pad,pads

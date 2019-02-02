@@ -1,0 +1,9 @@
+param,dist
+bottom,0.6
+top,0.4
+left,0.6
+right,0.4
+direction,tick_directions
+length,tick_lengths_minor
+width,line_widths
+color,colors

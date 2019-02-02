@@ -1,0 +1,7 @@
+param,dist
+n_points,n_points
+x_min,x_min
+x_range,x_range
+noise_std_prct,noise_std_prct
+poly_scale,poly_scale
+poly_deg,poly_deg

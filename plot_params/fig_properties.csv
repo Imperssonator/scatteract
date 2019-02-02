@@ -1,0 +1,5 @@
+param,dist
+figwidth,fig_widths
+figaspect,fig_aspects
+dpi,dpi
+facecolor,bg_colors
