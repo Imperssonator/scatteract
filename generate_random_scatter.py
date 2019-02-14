@@ -5,8 +5,10 @@ from matplotlib import font_manager
 from matplotlib.colors import to_rgb
 
 import os
+import click
 from glob import glob
 import pandas as pd
+from tqdm import tqdm
 
 import numpy as np
 np.random.seed(0) #For consistent data generation.
@@ -18,7 +20,6 @@ import copy
 
 
 ### SET UP PARAMETER SAMPLING #####
-
 def discrete_sample(df, param):
     """
     Given a dataframe with column names corresponding
@@ -69,20 +70,6 @@ def trunc_norm_sampler(lower, upper, mu, n_stds):
                         scale=sigma
                         )
     return X
-
-
-### DISCRETE PARAMETERS ###
-dfd = pd.read_csv('plot_params/discrete.csv')
-
-### CONTINUOUS PARAMETERS ###
-dfc = pd.read_csv('plot_params/continuous.csv', index_col='param')
-dfc['sampler'] = \
-    dfc.apply(lambda row:
-              trunc_norm_sampler(row['min'],
-                                 row['max'],
-                                 row['mean'],
-                                 row['n_stds']),
-              axis=1)
 
 
 def dist_sample(name, dfd, dfc):
@@ -187,13 +174,13 @@ def power_data_gen(x_min=0, x_range=3, n_points=20,
 
 ### FULL PLOT GENERATION ###
 
-def generate_training_plot(data_folder,id_str):
+def generate_training_plot(data_folder, id_str, label_colors):
     
     """
     Given a folder and the ID# for a new random plot, generate it and stick
     it in the folder
     """
-
+    
     ### GENERATE FIGURE ###
     fig_kwargs = build_kw_dict('plot_params/fig_properties.csv')
     fig, ax = generate_figure(**fig_kwargs)
@@ -233,27 +220,24 @@ def generate_training_plot(data_folder,id_str):
     
     ### SAVE RAW AND LABELED IMAGES ###
     fig.savefig('{}/{}.png'.format(data_folder, id_str), facecolor=fig.get_facecolor(), edgecolor='none')
-    label_img = Image.fromarray(generate_label_image(fig,ax))
+    label_img_array = generate_label_image(fig, ax, label_colors)
+    label_img = Image.fromarray(label_img_array)
     label_img.save('{}/{}.png'.format(data_folder+'_labels', id_str))
     
     return fig, ax
 
 
-def generate_label_image(fig,ax):
+def generate_label_image(fig, ax, label_colors):
     """
     This somehow turned out more complicated than plot generation...
     Given the Figure and Axes objects of a random plot,
+    and label_colors {'plot element': [r, g, b] as uint8}
     Return label_image, an image (numpy array) where the pixels representing each plot component have been labeled according to the provided colors (label_colors) so it can be used as input to Semantic Segmentation Suite
+    Also df_lc: dataframe of label colors that can be dumped to csv for the dataset
     """
     
     mask_dict = {}
-    label_colors = {'markers': str2color('xkcd:blue'),
-                    'x_ticks': str2color('xkcd:dark red'),
-                    'x_tick_labels': str2color('xkcd:red'),
-                    'y_ticks': str2color('xkcd:violet'),
-                    'y_tick_labels': str2color('xkcd:light purple'),
-                    'error_bars': str2color('xkcd:dark grey'),
-                    'background': str2color('xkcd:eggshell')}
+    # probably need some defensive code to check the label_colors dict
     
     bg_color = np.array([int(c*255) for c in fig.get_facecolor()])[:3].astype(np.uint8)
 
@@ -348,5 +332,58 @@ def set_color_mask(A, M, c):
     return A
 
 
+### DISCRETE PARAMETERS ###
+dfd = pd.read_csv('plot_params/discrete.csv')
+
+### CONTINUOUS PARAMETERS ###
+dfc = pd.read_csv('plot_params/continuous.csv', index_col='param')
+dfc['sampler'] = \
+    dfc.apply(lambda row:
+              trunc_norm_sampler(row['min'],
+                                 row['max'],
+                                 row['mean'],
+                                 row['n_stds']),
+              axis=1)
+
+
+@click.command()
+@click.argument('base_folder', type=click.Path())
+@click.option('--num-train', '-n', type=int, default=1000)
+@click.option('--num-val', '-v', type=int, default=400)
+@click.option('--num-test', '-t', type=int, default=400)
+def generate_dataset(base_folder, num_train=1000, num_val=400, num_test=400):
+    
+    os.makedirs(base_folder, exist_ok=True)
+
+    ### SET LABEL PIXEL COLORS ###
+    label_colors = {'markers': str2color('xkcd:blue'),
+                    'x_ticks': str2color('xkcd:dark red'),
+                    'x_tick_labels': str2color('xkcd:red'),
+                    'y_ticks': str2color('xkcd:violet'),
+                    'y_tick_labels': str2color('xkcd:light purple'),
+                    'error_bars': str2color('xkcd:dark grey'),
+                    'background': str2color('xkcd:eggshell')}
+
+    df_lc = pd.DataFrame.from_dict(label_colors).transpose().reset_index()
+    df_lc.columns=['name','r','g','b']
+    df_lc.to_csv(os.path.join(base_folder,'class_dict.csv'), index=False)
+
+    ### GENERATE PLOT IMAGES AND CLASS LABEL IMAGES ###
+    for dataset in ['train', 'val', 'test']:
+        os.makedirs(os.path.join(base_folder, dataset), exist_ok=True)
+        os.makedirs(os.path.join(base_folder, dataset+'_labels'), exist_ok=True)
+
+    for dataset in ['train', 'val', 'test']:
+        print('Generating ', dataset)
+        for i in tqdm(range(eval('num_'+dataset))):
+            data_folder = os.path.join(base_folder, dataset)
+            fig, ax = generate_training_plot(data_folder,
+                                             str(i).zfill(6),
+                                             label_colors)
+            plt.close(fig)
+
+    return
+
+
 if __name__ == '__main__':
-    print("This doesn't work yet")
+    generate_dataset()
