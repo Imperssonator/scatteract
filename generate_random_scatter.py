@@ -154,11 +154,11 @@ def power_data_gen(x_min=0, x_range=3, n_points=20,
         x_spacing='log'
         X = np.logspace(x_min,
                         x_min + x_range,
-                        n_points)
+                        int(n_points))
     else:
         X = np.linspace(10**x_min,
                         10**x_min + 10**x_range,
-                        n_points)
+                        int(n_points))
         x_spacing='linear'
     
     Y = poly_scale * X ** poly_deg
