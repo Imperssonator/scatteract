@@ -190,8 +190,8 @@ def generate_training_plot(data_folder, id_str, label_colors):
     marker_kwargs = build_kw_dict('plot_params/marker_styles.csv')
     X, Y, Ye, x_spacing, y_spacing = power_data_gen(**data_kwargs)
     ax.plot(X,Y+Ye,**marker_kwargs)
-    ax.set_xscale(x_spacing, nonposx='clip')
-    ax.set_yscale(y_spacing, nonposy='clip')
+    ax.set_xscale(x_spacing, nonpositive='clip')
+    ax.set_yscale(y_spacing, nonpositive='clip')
 
     ### ERROR BARS ###
     error_kwargs = build_kw_dict('plot_params/errorbar_styles.csv')
